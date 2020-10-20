@@ -1,6 +1,6 @@
 # Psalm Docker VS Code
 
-Visual Studio Code plugin for Psalm. This extension allows for the Psalm server to run inside the docker container. It works by having a docker-compose run the psalm server. Next, it translates the file paths between the host OS and the docker container. This extension is based on the official psalm-vscode-plugin extension.
+Visual Studio Code plugin for Psalm. This extension allows for the Psalm server to run inside the docker container. It works by having a docker-compose run the psalm server. Next, it translates the file paths between the host OS and the docker container. This extension is based on the official [Psalm VS Code Extension](https://github.com/psalm/psalm-vscode-plugin) extension.
 
 ## Features
 
