@@ -30,11 +30,6 @@ export function activate(context: vscode.ExtensionContext) {
 	psalmStatusBar.tooltip = 'Psalm Language Server';
 	psalmStatusBar.show();
 
-	// TODO REMOVE
-	const phpProcessPath = 'C:/maqe/capcito/php.exe';
-	const psalmLanguageServerPath = './vendor/bin/psalm-language-server';
-
-
 	const escapeRegExp = (string: string) => {
 		return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 	}
@@ -123,9 +118,7 @@ export function activate(context: vscode.ExtensionContext) {
 				'-T',
 				dockerServiceName,
 				'php',
-				'-d xdebug.remote_autostart=0',
-				'-d xdebug.remote_enable=0',
-				'-d xdebug_profiler_enable=0',
+				'-d xdebug.start_with_request=no',
 				'-f',
 				remotePsalmServerPath,
 				'--',
@@ -136,10 +129,10 @@ export function activate(context: vscode.ExtensionContext) {
 				'--find-dead-code',
 				'--verbose',
 				'--tcp=host.docker.internal:'+  address.port
-			];
+			]);
 
 			let serverProcess = child.spawn('docker-compose', dockerConfig);
-
+			
 			if (debug) {
 				console.log('starting psalm server: docker-compose ' + dockerConfig.join(' '));
 
