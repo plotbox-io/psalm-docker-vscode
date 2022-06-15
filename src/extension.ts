@@ -58,8 +58,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const config = vscode.workspace.getConfiguration('psalm_docker');
 	
-	let localDockerComposePath: string = String(config.get('localDockerComposePath'));
-	let remotePsalmServerPath: string = config.get('remotePsalmServerPath') || '/var/www/html/vendor/bin/psalm-language-server';
+	let localDockerComposePaths: Array<string> = config.get('localDockerComposePaths') || [];
+	let remotePsalmServerPath: string = config.get('remotePsalmServerPath') || '';
 	let localPath: string = normalizePath(config.get('localPath') || '');
 	let remotePath: string = normalizePath(config.get('remotePath') || '/var/www/html/');
 	let remotePsalmXmlPath: string = config.get('remotePsalmXmlPath') || '/var/www/html/psalm.xml';
@@ -75,7 +75,7 @@ export function activate(context: vscode.ExtensionContext) {
 		console.log('localUriPath', localUriPath);
 		console.log('remoteUriPath', remoteUriPath);
 
-		console.log('psalm_docker.localDockerComposePath', localDockerComposePath);
+		console.log('psalm_docker.localDockerComposePaths', localDockerComposePaths);
 		console.log('psalm_docker.remotePsalmServerPath', remotePsalmServerPath);
 		console.log('psalm_docker.localPath', localPath);
 		console.log('psalm_docker.remotePath', remotePath);
@@ -110,9 +110,15 @@ export function activate(context: vscode.ExtensionContext) {
 				console.log('vscode server is listening on 127.0.0.1:' + address.port);
 			}
 
-			const dockerConfig: string[] = [
-				'-f',
-				localDockerComposePath,
+			const dockerConfig: string[] = [];
+
+			const dockerComposePathArgs = [];
+			localDockerComposePaths.forEach((path) => {
+				dockerConfig.push('-f');
+				dockerConfig.push(path);
+			});
+
+			dockerConfig.push(...[
 				'exec',
 				'-T',
 				dockerServiceName,

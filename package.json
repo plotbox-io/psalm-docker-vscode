@@ -80,13 +80,13 @@
 					"default": null,
 					"description": "Path to psalm.xml file accessible inside docker. Default: /var/www/html/psalm.xml. Required."
 				},
-				"psalm_docker.localDockerComposePath": {
+				"psalm_docker.localDockerComposePaths": {
 					"type": [
-						"string",
+						"array",
 						"null"
 					],
 					"default": null,
-					"description": "Path to docker-compose.yml acessible outside of the docker. Required."
+					"description": "Paths to docker-compose.override.yml/docker-compose.yml acessible outside of the docker. Required."
 				},
 				"psalm_docker.remotePsalmServerPath": {
 					"type": [
