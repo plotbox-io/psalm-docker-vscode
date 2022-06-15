@@ -2,7 +2,7 @@
 	"name": "better-psalm-docker-vscode",
 	"displayName": "Better Psalm Docker VS Code",
 	"description": "Better Psalm Docker VS Code",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"author": "Richard Paul",
 	"license": "MIT",
 	"publisher": "plotbox",
@@ -15,7 +15,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Ignas2526/psalm-docker-vscode"
+		"url": "https://github.com/plotbox-io/psalm-docker-vscode"
 	},
 	"icon": "icon.png",
 	"activationEvents": [

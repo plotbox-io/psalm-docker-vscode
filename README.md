@@ -1,5 +1,13 @@
 # Psalm Docker VS Code
 
+This plugin is a fork made from the psalm-docker-vscode extension by Ignas2526 (here https://github.com/Ignas2526/psalm-docker-vscode). It solves some problems with that extension to make it useable:
+
+- Allows multiple docker-compose.yml files (i.e., allow for override file + default file together)
+- Updates the xdebug command line disabling feature to use xdebug v3 rather than xdebug v2
+- Adds some examples to the readme so there's less guess work :)
+
+-------
+
 Visual Studio Code plugin for Psalm. This extension allows for the Psalm server to run inside the docker container. It works by having a docker-compose run the psalm server. Next, it translates the file paths between the host OS and the docker container. This extension is based on the official [Psalm VS Code Extension](https://github.com/psalm/psalm-vscode-plugin) extension.
 
 ## Features
