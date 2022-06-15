@@ -99,7 +99,7 @@ export function activate(context: vscode.ExtensionContext) {
 			resolve({reader: socket, writer: socket});
 		});
 
-		server.listen(0, '127.0.0.1', function() {
+		server.listen(0, '0.0.0.0', function() {
 			const address = server.address();
 			if (address === null || typeof address === 'string') {
 				console.log('cannot start listening, server.address() issue');
