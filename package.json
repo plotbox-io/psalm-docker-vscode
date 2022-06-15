@@ -1,11 +1,11 @@
 {
-	"name": "psalm-docker-vscode",
-	"displayName": "Psalm Docker VS Code",
-	"description": "Psalm Docker VS Code",
-	"version": "1.0.0",
-	"author": "Ignas Poklad",
+	"name": "better-psalm-docker-vscode",
+	"displayName": "Better Psalm Docker VS Code",
+	"description": "Better Psalm Docker VS Code",
+	"version": "1.0.1",
+	"author": "Richard Paul",
 	"license": "MIT",
-	"publisher": "ignas-poklad",
+	"publisher": "plotbox",
 	"engines": {
 		"vscode": "^1.43.0"
 	},
@@ -113,10 +113,5 @@
 				}
 			}
 		}
-	},
-	"__metadata": {
-		"id": "51a19e51-ef96-4b95-a04c-b3d9f975da25",
-		"publisherDisplayName": "Ignas Poklad",
-		"publisherId": "f9096cee-090d-4a1c-9720-b72b6fbc3459"
 	}
 }
