@@ -25,20 +25,26 @@ Visual Studio Code plugin for Psalm. This extension allows for the Psalm server 
 // The name of your PHP service in your docker compose configuration (i.e., the
 // first YAML label/indentation beneath outer 'services:' indentation level)
 "psalm_docker.dockerServiceName": "php",
+
 // Array of either 1 or 2 absolute paths to the docker compose Yaml files on your
 // host filesystem. Always put your override path first (if applicable)
 "psalm_docker.localDockerComposePaths": [
     "/your/host/path/docker-compose.override.yml",
     "/your/host/path/docker-compose.yml"
 ],
+
 // Absolute path to the psalm-language-server binary (path inside the container!)
 "psalm_docker.remotePsalmServerPath": "/app/vendor/bin/psalm-language-server",
+
 // Absolute path of your project/repo for your host filesystem
 "psalm_docker.localPath": "/your/host/path",
+
 // Absolute path of your project/repo inside your docker filesystem
 "psalm_docker.remotePath": "/app",
+
 // Absolute path to your psalm XML config file inside your docker filesystem
-"psalm_docker.remotePsalmXmlPath": "/app/psalm.xml"
+"psalm_docker.remotePsalmXmlPath": "/app/psalm.xml",
+
 // Domain or IP address where the container can reach back to your host. 
 // See https://stackoverflow.com/a/62431165 on how you can configure 'host.docker.internal'
 // or alternatively, if you are using default networking, you should be able to
