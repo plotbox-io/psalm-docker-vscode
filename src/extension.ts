@@ -54,6 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let remotePath: string = normalizePath(config.get('remotePath') || '/var/www/html/');
 	let remotePsalmXmlPath: string = config.get('remotePsalmXmlPath') || '/var/www/html/psalm.xml';
 	let dockerServiceName: string = config.get('dockerServiceName') || '';
+	let dockerHostDomainOrIp: string = config.get('dockerHostDomainOrIp') || 'host.docker.internal';
 	let debug: boolean = config.get('debug') || false;
 
 	let localUriPath = url.format(url.parse('file://' + localPath));
@@ -125,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
 				remotePath,
 				'--find-dead-code',
 				'--verbose',
-				'--tcp=host.docker.internal:'+  address.port
+				'--tcp=' + dockerHostDomainOrIp + ':' +  address.port
 			]);
 
 			let serverProcess = child.spawn('docker-compose', dockerConfig);

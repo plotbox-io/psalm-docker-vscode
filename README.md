@@ -22,20 +22,34 @@ Visual Studio Code plugin for Psalm. This extension allows for the Psalm server 
 3. Configure this extension accordingly (example below)
 
 ```
+// The name of your PHP service in your docker compose configuration (i.e., the
+// first YAML label/indentation beneath outer 'services:' indentation level)
 "psalm_docker.dockerServiceName": "php",
+// Array of either 1 or 2 absolute paths to the docker compose Yaml files on your
+// host filesystem. Always put your override path first (if applicable)
 "psalm_docker.localDockerComposePaths": [
     "/your/host/path/docker-compose.override.yml",
     "/your/host/path/docker-compose.yml"
 ],
-"psalm_docker.remotePsalmServerPath": "vendor/bin/psalm-language-server",
+// Absolute path to the psalm-language-server binary (path inside the container!)
+"psalm_docker.remotePsalmServerPath": "/app/vendor/bin/psalm-language-server",
+// Absolute path of your project/repo for your host filesystem
 "psalm_docker.localPath": "/your/host/path",
+// Absolute path of your project/repo inside your docker filesystem
 "psalm_docker.remotePath": "/app",
+// Absolute path to your psalm XML config file inside your docker filesystem
 "psalm_docker.remotePsalmXmlPath": "/app/psalm.xml"
+// Domain or IP address where the container can reach back to your host. 
+// See https://stackoverflow.com/a/62431165 on how you can configure 'host.docker.internal'
+// or alternatively, if you are using default networking, you should be able to
+// simply use the IP address '172.17.0.1' (see https://bit.ly/3bjvFuu for more)
+"psalm_docker.dockerHostDomainOrIp": "host.docker.internal"
 ```
 
 ## Troubleshooting
 
-Set debug mode to true to get debug output to diagnose problems:
+Set debug mode to true to get debug output to diagnose problems. The output will
+appear in your 'Output' tool window under an output channel named 'Psalm Docker Debug'
 
 ```
 "psalm_docker.debug": true
@@ -44,7 +58,6 @@ Set debug mode to true to get debug output to diagnose problems:
 ## Current Assumptions
 
 - Xdebug v3 is installed in your PHP container
-- Special domain `host.docker.internal` can be used to reach back to host (see https://stackoverflow.com/a/62431165 on how this can be achieved)
 
 ## Contributing
 
