@@ -11,18 +11,13 @@ import {
 } from 'vscode-languageclient';
 
 
-// docker-compose -f C:/maqe/capcito/capcito-docker/docker-compose.yml exec -T app php -d xdebug.remote_autostart=0 -d xdebug.remote_enable=0 -d xdebug_profiler_enable=0 -f ./vendor/bin/psalm-language-server -- -c /var/www/html/psalm.xml -r /var/www/html/ --find-dead-code --verbose --tcp=host.docker.internal:57010
-// ps -auxww
-// netstat -anp tcp
-
 let client: LanguageClient;
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+/**
+ * Called when extension is activated. Extension is activated the
+ * very first time the command is executed
+ */
 export function activate(context: vscode.ExtensionContext) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
 
 	// this has a low priority so it will end up being more towards the right.
 	let psalmStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 1);
@@ -63,31 +58,33 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let localUriPath = url.format(url.parse('file://' + localPath));
 	let remoteUriPath = url.format(url.parse('file://' + remotePath));
+	const debugChannel = vscode.window.createOutputChannel("Psalm Docker Debug");
 
 	if (debug) {
 		vscode.window.showInformationMessage('Starting Server...');
 
-		console.log('localUriPath', localUriPath);
-		console.log('remoteUriPath', remoteUriPath);
+		debugChannel.show();
+		debugChannel.appendLine('localUriPath: ' + localUriPath + "\n");
+		debugChannel.appendLine('remoteUriPath: ' + remoteUriPath + "\n");
 
-		console.log('psalm_docker.localDockerComposePaths', localDockerComposePaths);
-		console.log('psalm_docker.remotePsalmServerPath', remotePsalmServerPath);
-		console.log('psalm_docker.localPath', localPath);
-		console.log('psalm_docker.remotePath', remotePath);
-		console.log('psalm_docker.remotePsalmXmlPath', remotePsalmXmlPath);
-		console.log('psalm_docker.dockerServiceName', dockerServiceName);
+		debugChannel.appendLine('psalm_docker.localDockerComposePaths: ' + localDockerComposePaths + "\n");
+		debugChannel.appendLine('psalm_docker.remotePsalmServerPath: ' + remotePsalmServerPath + "\n");
+		debugChannel.appendLine('psalm_docker.localPath: ' + localPath + "\n");
+		debugChannel.appendLine('psalm_docker.remotePath: ' + remotePath + "\n");
+		debugChannel.appendLine('psalm_docker.remotePsalmXmlPath: ' + remotePsalmXmlPath + "\n");
+		debugChannel.appendLine('psalm_docker.dockerServiceName: ' + dockerServiceName + "\n");
 	}
 
-	let serverOptions = (() => new Promise<StreamInfo>((resolve, reject) => {// host.docker.internal
+	let serverOptions = (() => new Promise<StreamInfo>((resolve, reject) => {
 		// 'connection' listener
 		const server = net.createServer(socket => {
 			if (debug) {
-				console.log('Psalm process connected');
+				debugChannel.appendLine('Psalm process connected\n');
 				socket.on('end', () => {
-					console.log('Psalm process disconnected');
+					debugChannel.appendLine('Psalm process disconnected\n');
 				});
 				socket.on('data', (data: string) => {
-					console.log(data.toString());
+					debugChannel.appendLine(data.toString() + "\n");
 				});
 			}
 			server.close();
@@ -97,12 +94,12 @@ export function activate(context: vscode.ExtensionContext) {
 		server.listen(0, '0.0.0.0', function() {
 			const address = server.address();
 			if (address === null || typeof address === 'string') {
-				console.log('cannot start listening, server.address() issue');
+				debugChannel.appendLine('cannot start listening, server.address() issue\n');
 				return;
 			}
 			
 			if (debug) {
-				console.log('vscode server is listening on 127.0.0.1:' + address.port);
+				debugChannel.appendLine('vscode server is listening on 127.0.0.1: ' + address.port + "\n");
 			}
 
 			const dockerConfig: string[] = [];
@@ -134,18 +131,18 @@ export function activate(context: vscode.ExtensionContext) {
 			let serverProcess = child.spawn('docker-compose', dockerConfig);
 			
 			if (debug) {
-				console.log('starting psalm server: docker-compose ' + dockerConfig.join(' '));
-
+				debugChannel.appendLine('starting psalm server: docker-compose ' + dockerConfig.join(' ') + "\n");
+			
 				serverProcess.stdout.on('data', (data) => {
-					console.log(`server process stdout: ${data}`);
+					debugChannel.appendLine(`server process stdout: ${data}\n`);
 				});
 				  
 				serverProcess.stderr.on('data', (data) => {
-					console.error(`server process stderr: ${data}`);
+					debugChannel.appendLine(`server process stderr: ${data}\n`);
 				});
 				
 				serverProcess.on('close', (code) => {
-					console.error(`server process exited with code ${code}`);
+					debugChannel.appendLine(`server process exited with code ${code}\n`);
 				});
 			}
 		});
@@ -187,7 +184,7 @@ export function activate(context: vscode.ExtensionContext) {
 				let localURI =  url.format(url.parse(uri.toString(true)));
 				let remoteURI = convertURI(localURI);
 				if (debug) {
-					console.log('l2r', localURI, remoteURI);
+					debugChannel.appendLine(`Convert Local to Remote Path: ${localURI} ${remoteURI}\n`);
 				}
 				return remoteURI;
 			},
@@ -195,7 +192,7 @@ export function activate(context: vscode.ExtensionContext) {
 				let remoteURI = str;
 				let localURI = convertURI(remoteURI, false);
 				if (debug) {
-					console.log('r2l', remoteURI, localURI);
+					debugChannel.appendLine(`Convert Remote to Local Path: ${remoteURI} ${localURI}\n`);
 				}
 				return vscode.Uri.parse(localURI)}
 		},
