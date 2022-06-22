@@ -48,9 +48,12 @@ Visual Studio Code plugin for Psalm. This extension allows for the Psalm server 
 // Domain or IP address where the container can reach back to your host. 
 // See https://stackoverflow.com/a/62431165 on how you can configure 'host.docker.internal'
 // or alternatively, if you are using default networking, you should be able to
-// simply use the IP address '172.17.0.1' (see https://bit.ly/3bjvFuu for more)
+// simply use the IP address '172.17.0.1'
 "psalm_docker.dockerHostDomainOrIp": "host.docker.internal"
 ```
+
+See https://dev.to/natterstefan/docker-tip-how-to-get-host-s-ip-address-inside-a-docker-container-5anh#:~:text=On%20Docker%20for%20Linux,%20the,you%20are%20using%20default%20networking. for more info on how
+to access the host from inside the docker container
 
 ## Troubleshooting
 
