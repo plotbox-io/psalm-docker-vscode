@@ -9,7 +9,7 @@ import {
 	TransportKind,
 	StreamInfo
 } from 'vscode-languageclient';
-
+var commandExists = require('command-exists').sync;
 
 let client: LanguageClient;
 
@@ -31,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const normalizePath = (path: string) => {
 		// Convert any backslashes (\) into forwardslashes
-		path = path.replace(/\\/g,'/');
+		path = path.replace(/\\/g, '/');
 
 		// remove trailing slash if exists
 		if (path.substr(-1) == '/') {
@@ -47,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 
 	const config = vscode.workspace.getConfiguration('psalm_docker');
-	
+
 	let localDockerComposePaths: Array<string> = config.get('localDockerComposePaths') || [];
 	let remotePsalmServerPath: string = config.get('remotePsalmServerPath') || '';
 	let localPath: string = normalizePath(config.get('localPath') || '');
@@ -60,6 +60,12 @@ export function activate(context: vscode.ExtensionContext) {
 	let localUriPath = url.format(url.parse('file://' + localPath));
 	let remoteUriPath = url.format(url.parse('file://' + remotePath));
 	const debugChannel = vscode.window.createOutputChannel("Psalm Docker Debug");
+
+	const fatalError = function(errorMessage: string) {
+		psalmStatusBar.text = 'Psalm Docker: ' + errorMessage;
+		debugChannel.appendLine(errorMessage);
+		throw errorMessage;
+	};
 
 	if (debug) {
 		vscode.window.showInformationMessage('Starting Server...');
@@ -89,18 +95,18 @@ export function activate(context: vscode.ExtensionContext) {
 				});
 			}
 			server.close();
-			resolve({reader: socket, writer: socket});
+			resolve({ reader: socket, writer: socket });
 		});
 
-		server.listen(0, '0.0.0.0', function() {
+		server.listen(0, '0.0.0.0', function () {
 			const address = server.address();
 			if (address === null || typeof address === 'string') {
 				debugChannel.appendLine('cannot start listening, server.address() issue\n');
 				return;
 			}
-			
+
 			if (debug) {
-				debugChannel.appendLine('vscode server is listening on 127.0.0.1: ' + address.port + "\n");
+				debugChannel.appendLine('vscode server is listening on 0.0.0.0: ' + address.port + "\n");
 			}
 
 			const dockerConfig: string[] = [];
@@ -126,22 +132,36 @@ export function activate(context: vscode.ExtensionContext) {
 				remotePath,
 				'--find-dead-code',
 				'--verbose',
-				'--tcp=' + dockerHostDomainOrIp + ':' +  address.port
+				'--tcp=' + dockerHostDomainOrIp + ':' + address.port
 			]);
 
+			if (!commandExists('docker-compose')) {
+				fatalError('Error: docker-compose command not available');
+			}
+
 			let serverProcess = child.spawn('docker-compose', dockerConfig);
-			
+			serverProcess.on('error', err => {
+				fatalError('Error: docker-compose sub-command error ' + err + "\n");
+			});
+			serverProcess.on('exit', (code, signal) => {
+				if (code) {
+					fatalError('Error: docker-compose sub-command exited with error code ' + code + "\n");
+				} else if (signal) {
+					fatalError('Error: docker-compose sub-command was killed with signal ' + signal + "\n");
+				}
+			});
+
 			if (debug) {
 				debugChannel.appendLine('starting psalm server: docker-compose ' + dockerConfig.join(' ') + "\n");
-			
+
 				serverProcess.stdout.on('data', (data) => {
 					debugChannel.appendLine(`server process stdout: ${data}\n`);
 				});
-				  
+
 				serverProcess.stderr.on('data', (data) => {
 					debugChannel.appendLine(`server process stderr: ${data}\n`);
 				});
-				
+
 				serverProcess.on('close', (code) => {
 					debugChannel.appendLine(`server process exited with code ${code}\n`);
 				});
@@ -151,14 +171,14 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const convertURI = (uri: string, l2r = true) => {
 		// Convert any backslashes (\) into forwardslashes
-		uri = uri.replace(/\\/g,'/');
+		uri = uri.replace(/\\/g, '/');
 
 		let fromPath = (l2r ? localUriPath : remoteUriPath);
 		let toPath = (l2r ? remoteUriPath : localUriPath);
 
 		// Replace any shorter uri path with toPath if URI matches part of fromPath
 		if (uri.length < fromPath.length
-				&& fromPath.substr(0, uri.length).toLocaleLowerCase() == uri.toLocaleLowerCase()) {
+			&& fromPath.substr(0, uri.length).toLocaleLowerCase() == uri.toLocaleLowerCase()) {
 			return toPath;
 		}
 
@@ -182,7 +202,7 @@ export function activate(context: vscode.ExtensionContext) {
 			// VS Code by default %-encodes even the colon after the drive letter
 			// NodeJS handles it much better
 			code2Protocol: uri => {
-				let localURI =  url.format(url.parse(uri.toString(true)));
+				let localURI = url.format(url.parse(uri.toString(true)));
 				let remoteURI = convertURI(localURI);
 				if (debug) {
 					debugChannel.appendLine(`Convert Local to Remote Path: ${localURI} ${remoteURI}\n`);
@@ -195,7 +215,8 @@ export function activate(context: vscode.ExtensionContext) {
 				if (debug) {
 					debugChannel.appendLine(`Convert Remote to Local Path: ${remoteURI} ${localURI}\n`);
 				}
-				return vscode.Uri.parse(localURI)}
+				return vscode.Uri.parse(localURI)
+			}
 		},
 		synchronize: {
 			// Synchronize the setting section 'psalm' to the server (TODO: server side support)
@@ -221,7 +242,7 @@ export function activate(context: vscode.ExtensionContext) {
 	client.onTelemetry((params) => {
 		if (typeof params === 'object' && 'message' in params && typeof params.message === 'string') {
 			// each time we get a new telemetry, we are going to check the config, and update as needed
-			let hideStatusMessageWhenRunning =  false;
+			let hideStatusMessageWhenRunning = false;
 			let status = params.message;
 			if (params.message.indexOf(':') >= 0) {
 				status = params.message.split(':')[0];
@@ -255,7 +276,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 	});
-	
+
 	client.registerProposedFeatures();
 
 	// Start the client. This will also launch the server
