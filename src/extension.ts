@@ -112,7 +112,17 @@ export function activate(context: vscode.ExtensionContext) {
 			var dockerConnectBackHost = dockerHostDomainOrIp;
 			var dockerConnectBackPort = address.port;
 			if(useNgrok) {
-				const urlObj = url.parse(await ngrok.connect({proto: 'tcp', addr: address.port}));
+				let ngrokUrlResult;
+				try {
+					ngrokUrlResult = await ngrok.connect({proto: 'tcp', addr: address.port});
+				} 
+				catch(e) {
+					const error = e as Error;
+					debugChannel.appendLine("Error initiating ngrok tunnel!");
+					debugChannel.appendLine(error.message);
+					fatalError('There was an error initiating ngrok tunnel');
+				}
+				const urlObj = url.parse(ngrokUrlResult);
 				dockerConnectBackHost = String (urlObj.host);
 				dockerConnectBackPort = Number (urlObj.port);
 			}
