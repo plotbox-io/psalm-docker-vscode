@@ -64,7 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let remoteUriPath = url.format(url.parse('file://' + remotePath));
 	const debugChannel = vscode.window.createOutputChannel("Psalm Docker Debug");
 
-	const fatalError = function(errorMessage: string) {
+	const fatalError = function (errorMessage: string) {
 		psalmStatusBar.text = 'Psalm Docker: ' + errorMessage;
 		debugChannel.appendLine(errorMessage);
 		throw errorMessage;
@@ -102,29 +102,32 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 
 		server.listen(0, '0.0.0.0', async function () {
-			
+
 			const address = server.address();
 			if (address === null || typeof address === 'string') {
 				debugChannel.appendLine('cannot start listening, server.address() issue\n');
 				return;
 			}
-			
+
 			var dockerConnectBackHost = dockerHostDomainOrIp;
 			var dockerConnectBackPort = address.port;
-			if(useNgrok) {
+			if (useNgrok) {
 				let ngrokUrlResult;
 				try {
-					ngrokUrlResult = await ngrok.connect({proto: 'tcp', addr: address.port});
-				} 
-				catch(e) {
+					ngrokUrlResult = await ngrok.connect({ proto: 'tcp', addr: address.port });
+				}
+				catch (e) {
 					const error = e as Error;
-					debugChannel.appendLine("Error initiating ngrok tunnel!");
-					debugChannel.appendLine(error.message);
-					fatalError('There was an error initiating ngrok tunnel');
+					debugChannel.appendLine(`${error.message} (${error.name})`);
+					if (error.stack) {
+						debugChannel.appendLine(error.stack);
+					}
+					debugChannel.appendLine(`There was an error (${error.name}) initiating ngrok tunnel to random server port ${address.port}`);
+					fatalError(`Error initiating ngrok tunnel!`);
 				}
 				const urlObj = url.parse(ngrokUrlResult);
-				dockerConnectBackHost = String (urlObj.host);
-				dockerConnectBackPort = Number (urlObj.port);
+				dockerConnectBackHost = String(urlObj.host);
+				dockerConnectBackPort = Number(urlObj.port);
 			}
 
 			if (debug) {
