@@ -2,7 +2,7 @@
 	"name": "better-psalm-docker-vscode",
 	"displayName": "Better Psalm Docker VS Code",
 	"description": "Better Psalm Docker VS Code",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"author": "Richard Paul",
 	"license": "MIT",
 	"publisher": "plotbox",
@@ -39,6 +39,7 @@
 	},
 	"dependencies": {
 		"command-exists": "^1.2.9",
+		"ngrok": "^4.3.1",
 		"vsce": "^1.81.1",
 		"vscode-languageclient": "^6.1.3"
 	},

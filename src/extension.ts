@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as child from 'child_process';
 import * as net from 'net';
 import * as url from 'url';
+
 import {
 	LanguageClient,
 	LanguageClientOptions,
@@ -10,6 +11,7 @@ import {
 	StreamInfo
 } from 'vscode-languageclient';
 var commandExists = require('command-exists').sync;
+const ngrok = require('ngrok');
 
 let client: LanguageClient;
 
@@ -55,6 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let remotePsalmXmlPath: string = config.get('remotePsalmXmlPath') || '/var/www/html/psalm.xml';
 	let dockerServiceName: string = config.get('dockerServiceName') || '';
 	let dockerHostDomainOrIp: string = config.get('dockerHostDomainOrIp') || 'host.docker.internal';
+	let useNgrok: boolean = config.get('ngrok') || false;
 	let debug: boolean = config.get('debug') || false;
 
 	let localUriPath = url.format(url.parse('file://' + localPath));
@@ -98,11 +101,20 @@ export function activate(context: vscode.ExtensionContext) {
 			resolve({ reader: socket, writer: socket });
 		});
 
-		server.listen(0, '0.0.0.0', function () {
+		server.listen(0, '0.0.0.0', async function () {
+			
 			const address = server.address();
 			if (address === null || typeof address === 'string') {
 				debugChannel.appendLine('cannot start listening, server.address() issue\n');
 				return;
+			}
+			
+			var dockerConnectBackHost = dockerHostDomainOrIp;
+			var dockerConnectBackPort = address.port;
+			if(useNgrok) {
+				const urlObj = url.parse(await ngrok.connect({proto: 'tcp', addr: address.port}));
+				dockerConnectBackHost = String (urlObj.host);
+				dockerConnectBackPort = Number (urlObj.port);
 			}
 
 			if (debug) {
@@ -132,7 +144,7 @@ export function activate(context: vscode.ExtensionContext) {
 				remotePath,
 				'--find-dead-code',
 				'--verbose',
-				'--tcp=' + dockerHostDomainOrIp + ':' + address.port
+				'--tcp=' + dockerConnectBackHost + ':' + dockerConnectBackPort
 			]);
 
 			if (!commandExists('docker-compose')) {
