@@ -56,7 +56,10 @@ Visual Studio Code plugin for Psalm. This extension allows for the Psalm server 
 // the extension use ngrok to bypass the need for the docker image to reach the
 // host via a local network port. Instead, it will use an ngrok dynamic domain
 // to go via an internet tunnel
-"psalm_docker.ngrok": false
+"psalm_docker.ngrok": false,
+// Signup for free at https://dashboard.ngrok.com/login for token to allow TCP tunnels
+// @see https://dashboard.ngrok.com/get-started/your-authtoken
+"psalm_docker.ngrokAuthToken": "ABC123"
 ```
 
 See https://dev.to/natterstefan/docker-tip-how-to-get-host-s-ip-address-inside-a-docker-container-5anh#:~:text=On%20Docker%20for%20Linux,%20the,you%20are%20using%20default%20networking. for more info on how
@@ -76,9 +79,10 @@ appear in your 'Output' tool window under an output channel named 'Psalm Docker 
 **Using ngrok Tunnel**
 
 If you have a non-standard docker configuration or are having issues with the docker container
-communicating back to the vscode host, you can set the config option `psalm_docker.ngrok` to true.
-This will mean ngrok is utilised to go via an internet tunnel rather than directly through the 
-local network
+communicating back to the vscode host, you can set the config option `psalm_docker.ngrok` to true as well as adding your ngrok auth token to `psalm_docker.ngrokAuthToken`.
+This will mean ngrok is utilised to go via an internet tunnel rather than directly through the local network
+
+See https://dashboard.ngrok.com/get-started/your-authtoken
 
 ## Contributing
 

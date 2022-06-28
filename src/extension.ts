@@ -10,6 +10,7 @@ import {
 	TransportKind,
 	StreamInfo
 } from 'vscode-languageclient';
+import { ErrorBody, NgrokClientError } from 'ngrok';
 var commandExists = require('command-exists').sync;
 const ngrok = require('ngrok');
 
@@ -58,6 +59,8 @@ export function activate(context: vscode.ExtensionContext) {
 	let dockerServiceName: string = config.get('dockerServiceName') || '';
 	let dockerHostDomainOrIp: string = config.get('dockerHostDomainOrIp') || 'host.docker.internal';
 	let useNgrok: boolean = config.get('ngrok') || false;
+	let ngrokToken: string = config.get('ngrokAuthToken') || '';
+
 	let debug: boolean = config.get('debug') || false;
 
 	let localUriPath = url.format(url.parse('file://' + localPath));
@@ -112,13 +115,26 @@ export function activate(context: vscode.ExtensionContext) {
 			var dockerConnectBackHost = dockerHostDomainOrIp;
 			var dockerConnectBackPort = address.port;
 			if (useNgrok) {
+				if(!ngrokToken) {
+					fatalError(`Missing value for psalm_docker.ngrokAuthToken. This is required to use ngrok`);
+				}
+
 				let ngrokUrlResult;
 				try {
-					ngrokUrlResult = await ngrok.connect({ proto: 'tcp', addr: address.port });
+					ngrokUrlResult = await ngrok.connect({
+						proto: 'tcp',
+						addr: address.port,
+						authtoken: ngrokToken
+					});
 				}
-				catch (e) {
-					const error = e as Error;
-					debugChannel.appendLine(`${error.message} (${error.name})`);
+				catch (error: any) {
+					error as NgrokClientError;
+					// Handle bad exception from library that probably means the token was invalid
+					if(error.message.includes("Cannot read properties of undefined (reading 'body')")) {
+						fatalError(`Error: Invalid ngrok token!`);	
+					}
+
+					debugChannel.appendLine(`Ngrok connection error: ${error.body.details.err} (${error.body.error_code})`);
 					if (error.stack) {
 						debugChannel.appendLine(error.stack);
 					}

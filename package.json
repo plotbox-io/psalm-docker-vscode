@@ -2,7 +2,7 @@
 	"name": "better-psalm-docker-vscode",
 	"displayName": "Better Psalm Docker VS Code",
 	"description": "Better Psalm Docker VS Code",
-	"version": "1.0.10",
+	"version": "1.0.11",
 	"author": "Richard Paul",
 	"license": "MIT",
 	"publisher": "plotbox",
